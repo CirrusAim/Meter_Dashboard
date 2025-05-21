@@ -33,7 +33,7 @@ namespace MeterDashboard.Services
                 if (parts.Length != 3) continue;
                 if (!long.TryParse(parts[0], out var unix)) continue;
                 if (!double.TryParse(parts[2], NumberStyles.Any, CultureInfo.InvariantCulture, out var value)) continue;
-                readings.Add(new MeterReading
+                readings.Add(new MeterReading //all entries in datasource
                 {
                     Timestamp = DateTimeOffset.FromUnixTimeSeconds(unix).DateTime,
                     MeterId = parts[1],
@@ -67,7 +67,7 @@ namespace MeterDashboard.Services
                 .OrderBy(r => r.Timestamp)
                 .ToList();
 
-            // Get all unique period starts for the year
+            // Get all unique start period (01:00:00) for every Timestamp 
             var periodStarts = meterReadings
                 .Select(r => strategy.GetPeriodStart(r.Timestamp))
                 .Distinct()
