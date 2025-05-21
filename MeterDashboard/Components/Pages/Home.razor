@@ -1,0 +1,343 @@
+﻿@page "/"
+
+@inject MeterDataService DataService
+@rendermode InteractiveServer
+
+<PageTitle>Meter Dashboard</PageTitle>
+
+<div class="container mt-4">
+    <h1 class="mb-4">Meter Dashboard</h1>
+    <div class="row">
+        <div class="col-lg-7 col-md-12 mb-4">
+            <div class="row mb-3">
+                <div class="col-12 col-md-4 mb-2">
+                    <label for="meterIdSelect" class="form-label">Select Meter ID:</label>
+                    <select id="meterIdSelect" class="form-select" @bind="selectedMeterId">
+                        <option value="" disabled selected>Select Meter ID</option>
+                        @foreach (var meterId in meterIds)
+                        {
+                            <option value="@meterId">@meterId</option>
+                        }
+                    </select>
+                </div>
+                <div class="col-12 col-md-4 mb-2">
+                    <label for="yearSelect" class="form-label">Select Year:</label>
+                    <select id="yearSelect" class="form-select" @bind="selectedYear">
+                        <option value="0" disabled selected>Select Year</option>
+                        @foreach (var year in years)
+                        {
+                            <option value="@year">@year</option>
+                        }
+                    </select>
+                </div>
+                <div class="col-12 col-md-4 mb-2">
+                    <label for="aggregationSelect" class="form-label">Aggregation:</label>
+                    <select id="aggregationSelect" class="form-select" @bind="selectedAggregation">
+                        <option value="" disabled selected>Select Aggregation</option>
+                        <option value="Daily">Daily</option>
+                        <option value="Weekly">Weekly</option>
+                        <option value="Monthly">Monthly</option>
+                    </select>
+                </div>
+            </div>
+            <div class="mb-3">
+                <label class="form-label">Filter by Date Range:</label>
+                <div class="row g-2">
+                    <div class="col-md-5">
+                        <label for="dateFrom" class="form-label small">From:</label>
+                        <input id="dateFrom" type="date" class="form-control" @bind="dateFrom" />
+                    </div>
+                    <div class="col-md-5">
+                        <label for="dateTo" class="form-label small">To:</label>
+                        <input id="dateTo" type="date" class="form-control" @bind="dateTo" />
+                    </div>
+                    <div class="col-md-2 d-flex align-items-end">
+                        <div class="d-flex gap-2 w-100">
+                            <button class="btn btn-primary btn-sm flex-grow-1" @onclick="ApplyDateFilter">Apply</button>
+                            <button class="btn btn-danger btn-sm flex-grow-1" @onclick="ClearDateFilter">Clear</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            @if (string.IsNullOrEmpty(selectedMeterId) || selectedYear == 0 || string.IsNullOrEmpty(selectedAggregation))
+            {
+                <div class="alert alert-info mt-3">Please select Meter ID, Year, and Aggregation to view data.</div>
+            }
+            else
+            {
+                <SummaryTable Data="pagedData" AggregationType=@selectedAggregation />
+                <div class="mb-2 mt-3 d-flex justify-content-between align-items-center">
+                    <div>
+                        <label>Rows per page:</label>
+                        <select class="form-select d-inline-block w-auto ms-2" @bind="rowsPerPage">
+                            <option value="5">5</option>
+                            <option value="10">10</option>
+                            <option value="20">20</option>
+                            <option value="50">50</option>
+                        </select>
+                    </div>
+                    <div>
+                        <button class="btn btn-outline-primary btn-sm me-2" @onclick="PreviousPage" disabled="@(currentPage == 1)">Previous</button>
+                        <span>Page @currentPage of @totalPages</span>
+                        <button class="btn btn-outline-primary btn-sm ms-2" @onclick="NextPage" disabled="@(currentPage == totalPages)">Next</button>
+                    </div>
+                </div>
+            }
+        </div>
+            </div>
+</div>
+
+@code {
+    private List<string> meterIds = new();
+    private List<int> years = new();
+    private string? _selectedMeterId = null;
+    private string? selectedMeterId
+    {
+        get => _selectedMeterId;
+        set
+        {
+            if (_selectedMeterId != value)
+            {
+                _selectedMeterId = value;
+                UpdateYears();
+                selectedYear = 0;
+                selectedAggregation = null;
+                UpdateSummaryAndPaging();
+            }
+        }
+    }
+
+    private int _selectedYear = 0;
+    private int selectedYear
+    {
+        get => _selectedYear;
+        set
+        {
+            if (_selectedYear != value)
+            {
+                _selectedYear = value;
+                UpdateSummaryAndPaging();
+            }
+        }
+    }
+
+    private string? _selectedAggregation = null;
+    private string? selectedAggregation
+    {
+        get => _selectedAggregation;
+        set
+        {
+            if (_selectedAggregation != value)
+            {
+                _selectedAggregation = value;
+                UpdateSummaryAndPaging();
+            }
+        }
+    }
+
+    private List<MeterSummary> summaryData = new();
+    private List<MeterSummary> pagedData = new();
+    private int _rowsPerPage = 5;
+    private int rowsPerPage
+    {
+        get => _rowsPerPage;
+        set
+        {
+            if (_rowsPerPage != value)
+            {
+                _rowsPerPage = value;
+                currentPage = 1;
+                UpdatePagedData();
+            }
+        }
+    }
+    private int currentPage = 1;
+    private int totalPages = 1;
+    private DateTime? dateFrom;
+    private DateTime? dateTo;
+    private DateTime? _selectedDateFilter = null;
+    private DateTime? selectedDateFilter
+    {
+        get => _selectedDateFilter;
+        set
+        {
+            if (_selectedDateFilter != value)
+            {
+                _selectedDateFilter = value;
+                UpdateSummaryAndPaging();
+            }
+        }
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+        await DataService.LoadAsync();
+        meterIds = DataService.GetMeterIds();
+        UpdateYears();
+        // setting options to no selection
+        selectedMeterId = null;
+        selectedYear = 0;
+        selectedAggregation = null;
+        UpdateSummaryAndPaging();
+    }
+
+    private void UpdateYears()
+    {
+        if (string.IsNullOrEmpty(selectedMeterId))
+        {
+            years = new();
+            return;
+        }
+        years = DataService.GetYears(selectedMeterId);
+    }
+
+    private void UpdateSummaryAndPaging()
+    {
+        // validation of selected options before showing data
+        if (string.IsNullOrEmpty(selectedMeterId) || selectedYear == 0 || string.IsNullOrEmpty(selectedAggregation))
+        {
+            summaryData = new();
+            pagedData = new();
+            totalPages = 1;
+            currentPage = 1;
+            StateHasChanged();
+            return;
+        }
+        summaryData = selectedAggregation switch
+        {
+            "Daily" => DataService.GetDailySummary(selectedMeterId, selectedYear),
+            "Weekly" => DataService.GetWeeklySummary(selectedMeterId, selectedYear),
+            "Monthly" => DataService.GetMonthlySummary(selectedMeterId, selectedYear),
+            _ => new List<MeterSummary>()
+        };
+
+        // Date range filter for all aggregations
+        if (dateFrom.HasValue)
+        {
+            if (selectedAggregation.ToLower() == "daily")
+            {
+                summaryData = summaryData
+                    .Where(s => 
+                    {
+                        if (!DateTime.TryParse(s.Period, out var d)) return false;
+                        if (dateTo.HasValue)
+                        {
+                            return d.Date >= dateFrom.Value.Date && d.Date <= dateTo.Value.Date;
+                        }
+                        return d.Date == dateFrom.Value.Date;
+                    })
+                    .ToList();
+            }
+            else if (selectedAggregation.ToLower() == "weekly")
+            {
+                var fromWeek = System.Globalization.ISOWeek.GetWeekOfYear(dateFrom.Value);
+                var fromYear = dateFrom.Value.Year;
+                var toWeek = dateTo.HasValue ? System.Globalization.ISOWeek.GetWeekOfYear(dateTo.Value) : fromWeek;
+                var toYear = dateTo.HasValue ? dateTo.Value.Year : fromYear;
+
+                summaryData = summaryData
+                    .Where(s => 
+                    {
+                        if (!s.Period.Contains("-W")) return false;
+                        var parts = s.Period.Split('-');
+                        if (parts.Length != 2) return false;
+                        
+                        var year = int.Parse(parts[0]);
+                        var week = int.Parse(parts[1].Substring(1));
+                        
+                        if (dateTo.HasValue)
+                        {
+                            if (year < fromYear || year > toYear) return false;
+                            if (year == fromYear && week < fromWeek) return false;
+                            if (year == toYear && week > toWeek) return false;
+                        }
+                        else
+                        {
+                            return year == fromYear && week == fromWeek;
+                        }
+                        
+                        return true;
+                    })
+                    .ToList();
+            }
+            else if (selectedAggregation.ToLower() == "monthly")
+            {
+                var fromMonth = dateFrom.Value.Month;
+                var fromYear = dateFrom.Value.Year;
+                var toMonth = dateTo.HasValue ? dateTo.Value.Month : fromMonth;
+                var toYear = dateTo.HasValue ? dateTo.Value.Year : fromYear;
+
+                summaryData = summaryData
+                    .Where(s => 
+                    {
+                        if (!s.Period.Contains("-")) return false;
+                        var parts = s.Period.Split('-');
+                        if (parts.Length != 2) return false;
+                        
+                        var year = int.Parse(parts[0]);
+                        var month = int.Parse(parts[1]);
+                        
+                        if (dateTo.HasValue)
+                        {
+                            if (year < fromYear || year > toYear) return false;
+                            if (year == fromYear && month < fromMonth) return false;
+                            if (year == toYear && month > toMonth) return false;
+                        }
+                        else
+                        {
+                            return year == fromYear && month == fromMonth;
+                        }
+                        
+                        return true;
+                    })
+                    .ToList();
+            }
+        }
+
+        currentPage = 1;
+        UpdatePagedData();
+    }
+
+    private void UpdatePagedData()
+    {
+        totalPages = Math.Max(1, (int)Math.Ceiling((double)summaryData.Count / rowsPerPage));
+        if (currentPage > totalPages) currentPage = totalPages;
+        if (currentPage < 1) currentPage = 1;
+        pagedData = summaryData.Skip((currentPage - 1) * rowsPerPage).Take(rowsPerPage).ToList();
+        StateHasChanged();
+    }
+
+    private void PreviousPage()
+    {
+        if (currentPage > 1)
+        {
+            currentPage--;
+            UpdatePagedData();
+        }
+    }
+
+    private void NextPage()
+    {
+        if (currentPage < totalPages)
+        {
+            currentPage++;
+            UpdatePagedData();
+        }
+    }
+
+    private void ApplyDateFilter()
+    {
+        if (dateFrom.HasValue)
+        {
+            selectedDateFilter = dateFrom.Value;
+            UpdateSummaryAndPaging();
+        }
+    }
+
+    private void ClearDateFilter()
+    {
+        dateFrom = null;
+        dateTo = null;
+        selectedDateFilter = null;
+    }
+}

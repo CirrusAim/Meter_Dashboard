@@ -1,0 +1,73 @@
+/* Custom Font Styles */
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
+
+:root {
+    --primary-font: 'Poppins', sans-serif;
+}
+
+body {
+    font-family: var(--primary-font);
+}
+
+/* Dashboard Title */
+.navbar-brand {
+    font-family: var(--primary-font);
+    font-weight: 600;
+    font-size: 1.4rem;
+    letter-spacing: 0.5px;
+}
+
+/* Navigation Menu */
+.nav-item {
+    font-family: var(--primary-font);
+    font-weight: 400;
+}
+
+.nav-item ::deep .nav-link {
+    font-size: 0.95rem;
+    letter-spacing: 0.3px;
+}
+
+/* Content Area */
+article {
+    font-family: var(--primary-font);
+}
+
+h1, h2, h3, h4, h5, h6 {
+    font-family: var(--primary-font);
+    font-weight: 600;
+    letter-spacing: 0.3px;
+}
+
+/* Card Titles */
+.card-title {
+    font-family: var(--primary-font);
+    font-weight: 500;
+    letter-spacing: 0.2px;
+}
+
+/* Buttons */
+.btn {
+    font-family: var(--primary-font);
+    font-weight: 500;
+    letter-spacing: 0.2px;
+}
+
+/* Form Elements */
+.form-control, .form-label {
+    font-family: var(--primary-font);
+    font-weight: 400;
+}
+
+/* Table Headers */
+th {
+    font-family: var(--primary-font);
+    font-weight: 500;
+    letter-spacing: 0.2px;
+}
+
+/* Table Content */
+td {
+    font-family: var(--primary-font);
+    font-weight: 400;
+} 

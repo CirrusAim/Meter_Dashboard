@@ -1,0 +1,43 @@
+
+@* <div>DEBUG: AggregationType = '@AggregationType'</div> *@
+<table class="table table-striped" style="width: 100%;">
+    <thead style="display: table; width: 100%; table-layout: fixed;">
+        <tr>
+            <th>@PeriodHeader</th>
+            <th>Sum</th>
+            <th>Peak Value</th>
+            <th>Peak Time</th>
+        </tr>
+    </thead>
+    <tbody style="display: block; max-height: 400px; overflow-y: auto; width: 100%;">
+        @if (Data != null && Data.Count > 0)
+        {
+            foreach (var row in Data)
+            {
+                <tr style="display: table; width: 100%; table-layout: fixed;">
+                    <td>@row.Period</td>
+                    <td>@row.Sum</td>
+                    <td>@row.PeakValue</td>
+                    <td>@row.PeakTime.ToString("yyyy-MM-dd HH:mm:ss")</td>
+                </tr>
+            }
+        }
+        else
+        {
+            <tr style="display: table; width: 100%; table-layout: fixed;"><td colspan="4">No data available.</td></tr>
+        }
+    </tbody>
+</table>
+
+@code {
+    [Parameter] public List<MeterSummary> Data { get; set; } = new();
+    [Parameter] public string? AggregationType { get; set; }
+    private string PeriodHeader =>
+        (AggregationType ?? "").Trim().ToLowerInvariant() switch
+        {
+            "daily" => "Date",
+            "weekly" => "Week",
+            "monthly" => "Month",
+            _ => "Period"
+        };
+} 

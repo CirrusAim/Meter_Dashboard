@@ -1,0 +1,30 @@
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.5.2.0
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MeterDashboard", "MeterDashboard\MeterDashboard.csproj", "{A32305E9-F3C6-86BC-C314-247AD965833E}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MeterDashboard.Tests", "MeterDashboard.Tests\MeterDashboard.Tests.csproj", "{4830827D-5601-9259-F905-7963FD6E52A0}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{A32305E9-F3C6-86BC-C314-247AD965833E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A32305E9-F3C6-86BC-C314-247AD965833E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A32305E9-F3C6-86BC-C314-247AD965833E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A32305E9-F3C6-86BC-C314-247AD965833E}.Release|Any CPU.Build.0 = Release|Any CPU
+		{4830827D-5601-9259-F905-7963FD6E52A0}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{4830827D-5601-9259-F905-7963FD6E52A0}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{4830827D-5601-9259-F905-7963FD6E52A0}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{4830827D-5601-9259-F905-7963FD6E52A0}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {C7ABE2D9-3A6A-4FE8-BEA7-3AABCA76BCFF}
+	EndGlobalSection
+EndGlobal
