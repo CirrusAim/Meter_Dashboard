@@ -14,12 +14,16 @@ namespace MeterDashboard.Services
         private readonly ISummaryStrategy _dailyStrategy;
         private readonly ISummaryStrategy _weeklyStrategy;
         private readonly ISummaryStrategy _monthlyStrategy;
+        private readonly ISummaryStrategy _quarterlyStrategy;
+
 
         public MeterDataService()
         {
             _dailyStrategy = new DailySummaryStrategy();
             _weeklyStrategy = new WeeklySummaryStrategy();
             _monthlyStrategy = new MonthlySummaryStrategy();
+            _quarterlyStrategy = new QuarterlySummaryStrategy();
+
         }
 
         public async Task LoadAsync()
@@ -110,6 +114,11 @@ namespace MeterDashboard.Services
         public List<MeterSummary> GetMonthlySummary(string meterId, int year)
         {
             return GetSummary(meterId, year, _monthlyStrategy);
+        }
+
+        public List<MeterSummary> GetQuarterlySummary(string meterId, int year)
+        {
+            return GetSummary(meterId, year, _quarterlyStrategy);
         }
     }
 }

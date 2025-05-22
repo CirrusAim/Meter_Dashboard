@@ -37,6 +37,8 @@
                         <option value="Daily">Daily</option>
                         <option value="Weekly">Weekly</option>
                         <option value="Monthly">Monthly</option>
+                        <option value="Quarterly">Quarterly</option>
+
                     </select>
                 </div>
             </div>
@@ -208,6 +210,7 @@
             "Daily" => DataService.GetDailySummary(selectedMeterId, selectedYear),
             "Weekly" => DataService.GetWeeklySummary(selectedMeterId, selectedYear),
             "Monthly" => DataService.GetMonthlySummary(selectedMeterId, selectedYear),
+            "Quarterly"=> DataService.GetQuarterlySummary(selectedMeterId, selectedYear),
             _ => new List<MeterSummary>()
         };
 
