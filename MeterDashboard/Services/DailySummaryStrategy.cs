@@ -20,7 +20,7 @@ namespace MeterDashboard.Services
 
         public bool IsInPeriod(DateTime date, DateTime periodStart)
         {
-            var nextDay = periodStart.Date.AddDays(1);
+            var nextDay = GetNextPeriod(periodStart);
             return (date >= periodStart && date < nextDay) ||
                    (date == nextDay); // Ensuring that Period for the day is between Current day 01:00 - 23:59 to the Next day 00:00
         }

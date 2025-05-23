@@ -25,7 +25,7 @@ namespace MeterDashboard.Services
 
         public bool IsInPeriod(DateTime date, DateTime periodStart)
         {
-            var nextWeek = periodStart.Date.AddDays(7);
+            var nextWeek = GetNextPeriod(periodStart);
             return (date >= periodStart && date < nextWeek) ||
                    (date == nextWeek); // Ensuring that Period for the week is between Current week Monday, 01:00-23:59 to Next week Monday, 00:00
         }

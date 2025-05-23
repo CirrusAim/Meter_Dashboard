@@ -22,7 +22,7 @@ namespace MeterDashboard.Services
 
         public bool IsInPeriod(DateTime date, DateTime periodStart)
         {
-            var nextMonth = new DateTime(periodStart.Year, periodStart.Month, 1).AddMonths(1);
+            var nextMonth = GetNextPeriod(periodStart);
             return (date >= periodStart && date < nextMonth) ||
                    (date == nextMonth); // Ensuring that Period for the month is between Current month 01:00 - 23:59 to the Next month 00:00
         }
